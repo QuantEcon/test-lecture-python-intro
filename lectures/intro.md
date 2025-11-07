@@ -9,7 +9,7 @@ kernelspec:
   name: python3
 ---
 
-# A First Course in Quantitative Economics with Python
+# (TEST) A First Course in Quantitative Economics with Python
 
 This lecture series provides an introduction to quantitative economics using Python. 
 
