@@ -11,21 +11,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
       
-      # Use composite action for environment setup
-      - name: Setup Lecture Environment
-        uses: quantecon/actions/setup-lecture-env@main
+      # Use unified composite action for complete environment setup
+      - name: Setup Complete Lecture Environment
+        uses: quantecon/actions/setup-lecture-env-full@main
         with:
           python-version: '3.13'
           environment-file: 'environment.yml'
+          latex-requirements-file: 'latex-requirements.txt'
           environment-name: 'quantecon'
       
       - name: graphviz Support # TODO: required?
         run: |
           sudo apt-get -qq update && sudo apt-get install -y graphviz
-      
-      # Use composite action for LaTeX setup
-      - name: Install LaTeX Dependencies
-        uses: quantecon/actions/setup-latex@main
       
       # Use composite action for building
       - name: Build HTML
