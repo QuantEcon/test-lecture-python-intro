@@ -1,5 +1,7 @@
 name: Build Cache [using jupyter-book]
 on:
+  push:
+    branches: [main]
   schedule:
     # Execute cache weekly at 3am on Monday
     - cron:  '0 3 * * 1'
@@ -10,41 +12,39 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - name: Setup Anaconda
-        uses: conda-incubator/setup-miniconda@v3
+      
+      # Use composite action for environment setup
+      - name: Setup Lecture Environment
+        uses: quantecon/actions/setup-lecture-env@main
         with:
-          auto-update-conda: true
-          auto-activate-base: true
-          miniconda-version: 'latest'
-          python-version: "3.13"
-          environment-file: environment.yml
-          activate-environment: quantecon
+          python-version: '3.13'
+          environment-file: 'environment.yml'
+          environment-name: 'quantecon'
+      
       - name: graphviz Support # TODO: required?
         run: |
           sudo apt-get -qq update && sudo apt-get install -y graphviz
-      - name: Install latex dependencies
-        run: |
-          sudo apt-get -qq update
-          sudo apt-get install -y     \
-            texlive-latex-recommended \
-            texlive-latex-extra       \
-            texlive-fonts-recommended \
-            texlive-fonts-extra       \
-            texlive-xetex             \
-            latexmk                   \
-            xindy                     \
-            dvipng                    \
-            cm-super
+      
+      # Use composite action for LaTeX setup
+      - name: Install LaTeX Dependencies
+        uses: quantecon/actions/setup-latex@main
+      
+      # Use composite action for building
       - name: Build HTML
-        shell: bash -l {0}
-        run: |
-          jb build lectures --path-output ./ -W --keep-going
+        id: build
+        uses: quantecon/actions/build-lectures@main
+        with:
+          builder: 'html'
+          source-dir: 'lectures'
+          extra-args: '-W --keep-going'
+      
       - name: Upload Execution Reports (HTML)
         uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: execution-reports
           path: _build/html/reports
+      
       - name: Upload "_build" folder (cache)
         uses: actions/upload-artifact@v5
         with:
