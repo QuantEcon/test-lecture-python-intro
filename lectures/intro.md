@@ -11,7 +11,9 @@ kernelspec:
 
 # (TEST) A First Course in Quantitative Economics with Python
 
-This lecture series provides an introduction to quantitative economics using Python. 
+This lecture series provides an introduction to quantitative economics using Python.
+
+**Note:** This is a test repository for validating GitHub Actions workflows and caching infrastructure.
 
 ```{tableofcontents}
 ```
