@@ -1,6 +1,6 @@
 # LaTeX packages required for Jupyter Book PDF builds
 # Version pinning ensures reproducibility and explicit cache invalidation
-# Last updated: 2024-11-07
+# Last updated: 2025-11-07
 # TexLive: 2023 (Ubuntu 24.04 LTS Noble ships with 2023.20240207-1)
 # Reference: https://packages.ubuntu.com/noble/texlive-base
 
