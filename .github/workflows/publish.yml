@@ -76,8 +76,8 @@ jobs:
       - name: Create HTML archive
         shell: bash -l {0}
         run: |
-          tar -czf lecture-python-intro-html-${{ github.ref_name }}.tar.gz -C _build/html .
-          sha256sum lecture-python-intro-html-${{ github.ref_name }}.tar.gz > html-checksum.txt
+          tar -czf test-lecture-python-intro-html-${{ github.ref_name }}.tar.gz -C _build/html .
+          sha256sum test-lecture-python-intro-html-${{ github.ref_name }}.tar.gz > html-checksum.txt
 
           # Create metadata manifest
           cat > html-manifest.json << EOF
@@ -93,7 +93,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            lecture-python-intro-html-${{ github.ref_name }}.tar.gz
+            test-lecture-python-intro-html-${{ github.ref_name }}.tar.gz
             html-checksum.txt
             html-manifest.json
         env:
