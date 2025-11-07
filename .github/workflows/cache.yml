@@ -17,7 +17,6 @@ jobs:
         with:
           python-version: '3.13'
           environment-file: 'environment.yml'
-          activate-environment: 'quantecon'
       
       - name: graphviz Support # TODO: required?
         run: |
