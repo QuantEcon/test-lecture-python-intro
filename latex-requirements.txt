@@ -1,43 +1,21 @@
-# LaTeX packages required for Jupyter Book PDF builds# LaTeX packages required for Jupyter Book PDF builds
+# LaTeX packages required for Jupyter Book PDF builds
+# Version pinning ensures reproducibility and explicit cache invalidation
+# Last updated: 2024-11-07
+# TexLive: 2023 (Ubuntu 24.04 LTS Noble ships with 2023.20240207-1)
+# Reference: https://packages.ubuntu.com/noble/texlive-base
 
-# Version pinning ensures reproducibility and explicit cache invalidation# Version pinning ensures reproducibility and explicit cache invalidation
+# Core LaTeX distribution (TexLive 2023)
+texlive-latex-recommended=2023.20240207-1
+texlive-latex-extra=2023.20240207-1
+texlive-fonts-recommended=2023.20240207-1
+texlive-fonts-extra=2023.20240207-1
+texlive-xetex=2023.20240207-1
+texlive-luatex=2023.20240207-1
 
-# Last updated: 2024-11-07# Last updated: 2024-11-07
-
-# TexLive: 2023 (Ubuntu 24.04 LTS Noble ships with 2023.20240207-1)# TexLive: 2023 (Ubuntu 24.04 LTS Noble ships with 2023.20240207-1)
-
-# Reference: https://packages.ubuntu.com/noble/texlive-base# Reference: https://packages.ubuntu.com/noble/texlive-base
-
-
-
-# Core LaTeX distribution (TexLive 2023)# Core LaTeX distribution (TexLive 2023)
-
-texlive-latex-recommended=2023.20240207-1texlive-latex-recommended=2023.20240207-1
-
-texlive-latex-extra=2023.20240207-1texlive-latex-extra=2023.20240207-1
-
-texlive-fonts-recommended=2023.20240207-1texlive-fonts-recommended=2023.20240207-1
-
-texlive-fonts-extra=2023.20240207-1texlive-fonts-extra=2023.20240207-1
-
-texlive-xetex=2023.20240207-1texlive-xetex=2023.20240207-1
-
-texlive-luatex=2023.20240207-1texlive-luatex=2023.20240207-1
-
-
-
-# Build tools# Build tools
-
-# Note: Versions will be determined on first run# Note: Update these versions when testing on actual runner
-
-latexmklatexmk
-
-xindyxindy
-
-dvipngdvipng
-
-ghostscriptghostscript
-
-cm-supercm-super
-
+# Build tools
+# Note: Versions will be determined on first run
+latexmk
+xindy
+dvipng
+ghostscript
 cm-super
