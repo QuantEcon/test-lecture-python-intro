@@ -6,37 +6,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - name: Setup Anaconda
-        uses: conda-incubator/setup-miniconda@v3
+      
+      # NEW: Use composite action for environment setup
+      - name: Setup Lecture Environment
+        uses: quantecon/actions/setup-lecture-env@main
         with:
-          auto-update-conda: true
-          auto-activate-base: true
-          miniconda-version: 'latest'
-          python-version: "3.13"
-          environment-file: environment.yml
-          activate-environment: quantecon
+          python-version: '3.13'
+          environment-file: 'environment.yml'
+      
       - name: Graphics Support #TODO: Review if graphviz is needed
         run: |
           sudo apt-get -qq update && sudo apt-get install -y graphviz
-      - name: Install latex dependencies
-        run: |
-          sudo apt-get -qq update
-          sudo apt-get install -y     \
-            texlive-latex-recommended \
-            texlive-latex-extra       \
-            texlive-fonts-recommended \
-            texlive-fonts-extra       \
-            texlive-xetex             \
-            latexmk                   \
-            xindy                     \
-            dvipng                    \
-            cm-super
+      
+      # NEW: Use composite action for LaTeX setup
+      - name: Install LaTeX Dependencies
+        uses: quantecon/actions/setup-latex@main
+      
       - name: Display Conda Environment Versions
         shell: bash -l {0}
         run: conda list
+      
       - name: Display Pip Versions
         shell: bash -l {0}
         run: pip list
+      
       - name: Download "build" folder (cache)
         uses: dawidd6/action-download-artifact@v11
         with:
@@ -44,46 +37,73 @@ jobs:
           branch: main
           name: build-cache
           path: _build
+      
       # Build Assets (Download Notebooks and PDF via LaTeX)
+      # NEW: Use composite action for PDF build
       - name: Build PDF from LaTeX
+        id: build-pdf
+        uses: quantecon/actions/build-lectures@main
+        with:
+          builder: 'pdflatex'
+          source-dir: 'lectures'
+          extra-args: '-n --keep-going'
+      
+      - name: Copy LaTeX PDF for GH-PAGES
         shell: bash -l {0}
         run: |
-          jb build lectures --builder pdflatex --path-output ./ -n --keep-going
           mkdir -p _build/html/_pdf
           cp -u _build/latex/*.pdf _build/html/_pdf
+      
       - name: Upload Execution Reports (LaTeX)
         uses: actions/upload-artifact@v5
         if: failure()
         with:
-          name: execution-reports
+          name: execution-reports-latex
           path: _build/latex/reports
+      
+      # NEW: Use composite action for Jupyter build
       - name: Build Download Notebooks (sphinx-tojupyter)
+        id: build-jupyter
+        uses: quantecon/actions/build-lectures@main
+        with:
+          builder: 'jupyter'
+          source-dir: 'lectures'
+          extra-args: ''
+      
+      - name: Copy Download Notebooks for GH-PAGES
         shell: bash -l {0}
         run: |
-          jb build lectures --path-output ./ --builder=custom --custom-builder=jupyter
           mkdir -p _build/html/_notebooks
           cp -u _build/jupyter/*.ipynb _build/html/_notebooks
+      
       # Build HTML (Website)
       # BUG: rm .doctress to remove `sphinx` rendering issues for ipywidget mimetypes
       # and clear the sphinx cache for building final HTML documents.
+      - name: Remove doctrees cache
+        run: rm -r _build/.doctrees
+      
+      # NEW: Use composite action for HTML build
       - name: Build HTML
-        shell: bash -l {0}
-        run: |
-          rm -r _build/.doctrees
-          jb build lectures --path-output ./ -nW --keep-going
+        id: build-html
+        uses: quantecon/actions/build-lectures@main
+        with:
+          builder: 'html'
+          source-dir: 'lectures'
+          extra-args: '-nW --keep-going'
+      
       - name: Upload Execution Reports (HTML)
         uses: actions/upload-artifact@v5
         if: failure()
         with:
-          name: execution-reports
+          name: execution-reports-html
           path: _build/html/reports
+      
+      # NEW: Use composite action for Netlify deployment
       - name: Preview Deploy to Netlify
-        uses: nwtgck/actions-netlify@v3.0
+        uses: quantecon/actions/deploy-netlify@main
         with:
-          publish-dir: '_build/html/'
-          production-branch: main
+          netlify-auth-token: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          netlify-site-id: ${{ secrets.NETLIFY_SITE_ID }}
+          build-dir: ${{ steps.build-html.outputs.build-path }}
+          production: 'false'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Preview Deploy from GitHub Actions"
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
