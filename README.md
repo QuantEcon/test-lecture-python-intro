@@ -1,4 +1,6 @@
-# ⚠️ TEST REPOSITORY - A First Course in Quantitative Economics with Python
+# ⚠️ TEST REPOSITORY
+
+# A First Course in Quantitative Economics with Python
 
 > **🧪 This is a test repository for QuantEcon Actions development**  
 > **Do not use for production purposes**  
