@@ -1,0 +1,120 @@
+name: Test Container Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [test-container]
+
+jobs:
+  build-container:
+    name: Build with Container
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/quantecon/quantecon:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Validate container environment
+        run: |
+          echo "=== Python Version ==="
+          python --version
+          echo ""
+          echo "=== Anaconda Base Packages ==="
+          conda list | grep -E "(numpy|scipy|pandas|matplotlib|jupyter)"
+          echo ""
+          echo "=== Jupyter Book ==="
+          jupyter-book --version
+          echo ""
+          echo "=== LaTeX ==="
+          pdflatex --version | head -n 1
+      
+      - name: Install lecture dependencies
+        run: |
+          echo "=== Installing lecture-specific packages ==="
+          cd _notebook_repo
+          conda env update -f environment.yml
+          echo ""
+          echo "=== Verify quantecon installed ==="
+          python -c "import quantecon; print(f'quantecon {quantecon.__version__}')"
+      
+      - name: Build lectures
+        run: jupyter-book build lectures/
+      
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-container
+          path: lectures/_build/html/
+          retention-days: 7
+  
+  build-ubuntu:
+    name: Build with ubuntu-latest (baseline)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup environment
+        uses: quantecon/actions/setup-environment@main
+        with:
+          python-version: '3.13'
+          environment-file: '_notebook_repo/environment.yml'
+          install-latex: 'true'
+          environment-name: 'quantecon'
+      
+      - name: Build lectures
+        run: jupyter-book build lectures/
+      
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-ubuntu
+          path: lectures/_build/html/
+          retention-days: 7
+  
+  compare:
+    name: Compare Results
+    needs: [build-container, build-ubuntu]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Download container artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: html-container
+          path: html-container
+        continue-on-error: true
+      
+      - name: Download ubuntu artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: html-ubuntu
+          path: html-ubuntu
+        continue-on-error: true
+      
+      - name: Generate summary
+        run: |
+          echo "## Build Comparison Results :mag:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -d "html-container" ] && [ -d "html-ubuntu" ]; then
+            echo "✅ Both builds completed successfully" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            echo "### File Comparison" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            diff -r html-container/ html-ubuntu/ | head -n 50 || echo "No differences found (or only timestamps)"
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            echo "### Performance Metrics" >> $GITHUB_STEP_SUMMARY
+            echo "Check job timings above to compare:" >> $GITHUB_STEP_SUMMARY
+            echo "- Container setup time (pull + install)" >> $GITHUB_STEP_SUMMARY
+            echo "- ubuntu-latest setup time (conda + latex + install)" >> $GITHUB_STEP_SUMMARY
+            echo "- Build times should be similar" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ One or both builds failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Check job logs above for details" >> $GITHUB_STEP_SUMMARY
+          fi
