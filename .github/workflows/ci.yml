@@ -9,11 +9,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
       
-      - name: Install lecture dependencies
-        run: |
-          conda env update -f environment.yml
-          echo "=== Installed Packages ==="
-          conda list
       - name: Download "build" folder (cache)
         uses: dawidd6/action-download-artifact@v11
         with:
