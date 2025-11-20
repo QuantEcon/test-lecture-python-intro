@@ -5,6 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/quantecon/quantecon:latest
+      options: --pull always  # Force fresh container pull
     steps:
       - name: Checkout
         uses: actions/checkout@v5
