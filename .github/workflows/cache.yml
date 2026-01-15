@@ -1,48 +1,32 @@
-name: Build Cache [using jupyter-book]
+name: Build Cache
 on:
+  push:
+    branches: [main]
   schedule:
-    # Execute cache weekly at 3am on Monday
-    - cron:  '0 3 * * 1'
+    - cron: '0 3 * * 1'  # Weekly Monday 3am
   workflow_dispatch:
+
 jobs:
-  tests:
+  build-cache:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/quantecon/quantecon:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v5
       
-      # Use unified composite action for complete environment setup
-      - name: Setup Complete Lecture Environment
-        uses: quantecon/actions/setup-lecture-env-full@main
-        with:
-          python-version: '3.13'
-          environment-file: 'environment.yml'
-          latex-requirements-file: 'latex-requirements.txt'
-          environment-name: 'quantecon'
-      
-      - name: graphviz Support # TODO: required?
-        run: |
-          sudo apt-get -qq update && sudo apt-get install -y graphviz
-      
-      # Use composite action for building
+      # Build HTML (full execution, no cache restore)
       - name: Build HTML
         id: build
-        uses: quantecon/actions/build-lectures@main
+        uses: quantecon/actions/build-lectures@v0
         with:
-          builder: 'html'
           source-dir: 'lectures'
-          extra-args: '-W --keep-going'
+          builder: 'html'
+          upload-failure-reports: true
       
-      - name: Upload Execution Reports (HTML)
-        uses: actions/upload-artifact@v5
-        if: failure()
+      # Save build cache for PR builds
+      - name: Save Build Cache
+        uses: actions/cache/save@v4
         with:
-          name: execution-reports
-          path: _build/html/reports
-      
-      - name: Upload "_build" folder (cache)
-        uses: actions/upload-artifact@v5
-        with:
-          name: build-cache
           path: _build
-          include-hidden-files: true
+          key: build-${{ hashFiles('environment.yml') }}-${{ github.sha }}
