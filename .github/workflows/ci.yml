@@ -24,6 +24,6 @@ jobs:
       - name: Deploy to Netlify
         uses: quantecon/actions/deploy-netlify@v0
         with:
-          publish-dir: ${{ steps.build.outputs.build-path }}
+          build-dir: ${{ steps.build.outputs.build-path }}
           netlify-auth-token: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           netlify-site-id: ${{ secrets.NETLIFY_SITE_ID }}
