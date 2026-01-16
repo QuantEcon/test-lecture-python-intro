@@ -30,3 +30,11 @@ jobs:
         with:
           path: _build
           key: build-${{ hashFiles('environment.yml') }}-${{ github.sha }}
+      
+      # Upload as artifact for visibility and cross-workflow access
+      - name: Upload Build Cache Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-cache
+          path: _build
+          retention-days: 90
