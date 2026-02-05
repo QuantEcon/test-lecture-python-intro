@@ -23,3 +23,4 @@ To comment on the lectures please add to or open an issue in the issue tracker (
 We welcome pull requests!  
 
 Please read the [QuantEcon style guide](https://manual.quantecon.org/intro.html) first, so that you can match our style.
+
