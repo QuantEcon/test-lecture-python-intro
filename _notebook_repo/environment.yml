@@ -2,6 +2,6 @@ name: lecture-python-intro
 channels:
   - default
 dependencies:
-  - python=3.10
-  - anaconda=2023.03
+  - python=3.13
+  - anaconda=2025.12
 

@@ -16,7 +16,7 @@ jobs:
   build-cache:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/quantecon/quantecon:latest
+      image: ghcr.io/quantecon/quantecon-build:latest
     
     permissions:
       contents: read
@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Build and Cache
-        uses: quantecon/actions/build-jupyter-cache@v0
+        uses: quantecon/actions/build-jupyter-cache@v0.5.0
         with:
           builders: 'html'
           source-dir: 'lectures'

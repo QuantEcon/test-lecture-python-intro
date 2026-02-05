@@ -7,7 +7,7 @@ jobs:
   preview:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/quantecon/quantecon:latest
+      image: ghcr.io/quantecon/quantecon-build:latest
     
     permissions:
       contents: read
@@ -19,21 +19,21 @@ jobs:
       
       - name: Restore Build Cache
         id: cache
-        uses: quantecon/actions/restore-jupyter-cache@v0
+        uses: quantecon/actions/restore-jupyter-cache@v0.5.0
         with:
           cache-type: 'build'
           source-dir: 'lectures'
       
       - name: Build HTML
         id: build
-        uses: quantecon/actions/build-lectures@v0
+        uses: quantecon/actions/build-lectures@v0.5.0
         with:
           source-dir: 'lectures'
           builder: 'html'
           upload-failure-reports: true
       
       - name: Deploy to Netlify
-        uses: quantecon/actions/preview-netlify@v0
+        uses: quantecon/actions/preview-netlify@v0.5.0
         with:
           build-dir: ${{ steps.build.outputs.build-path }}
           netlify-auth-token: ${{ secrets.NETLIFY_AUTH_TOKEN }}
