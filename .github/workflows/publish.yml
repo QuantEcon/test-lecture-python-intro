@@ -25,9 +25,8 @@ jobs:
       url: ${{ steps.deploy.outputs.page-url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
       
-      # Build PDF
       - name: Build PDF
         uses: quantecon/actions/build-lectures@v0
         with:
@@ -35,7 +34,6 @@ jobs:
           builder: 'pdflatex'
           upload-failure-reports: true
       
-      # Build notebooks
       - name: Build Notebooks
         uses: quantecon/actions/build-lectures@v0
         with:
@@ -43,7 +41,6 @@ jobs:
           builder: 'jupyter'
           upload-failure-reports: true
       
-      # Build HTML and assemble all assets
       - name: Build HTML
         id: build
         uses: quantecon/actions/build-lectures@v0
@@ -54,7 +51,6 @@ jobs:
           html-copy-notebooks: true
           upload-failure-reports: true
       
-      # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         id: deploy
         uses: quantecon/actions/publish-gh-pages@v0

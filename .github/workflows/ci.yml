@@ -1,28 +1,39 @@
 name: CI Preview
-on: [pull_request]
+on: 
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   preview:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/quantecon/quantecon:latest
+    
+    permissions:
+      contents: read
+      packages: read
+    
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
       
-      # Build HTML with build cache restore
+      - name: Restore Build Cache
+        id: cache
+        uses: quantecon/actions/restore-jupyter-cache@v0
+        with:
+          cache-type: 'build'
+          source-dir: 'lectures'
+      
       - name: Build HTML
         id: build
         uses: quantecon/actions/build-lectures@v0
         with:
           source-dir: 'lectures'
           builder: 'html'
-          use-build-cache: true
           upload-failure-reports: true
       
-      # Deploy preview to Netlify
       - name: Deploy to Netlify
-        uses: quantecon/actions/deploy-netlify@v0
+        uses: quantecon/actions/preview-netlify@v0
         with:
           build-dir: ${{ steps.build.outputs.build-path }}
           netlify-auth-token: ${{ secrets.NETLIFY_AUTH_TOKEN }}

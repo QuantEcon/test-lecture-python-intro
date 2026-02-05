@@ -2,39 +2,34 @@ name: Build Cache
 on:
   push:
     branches: [main]
+    paths:
+      - 'environment.yml'
   schedule:
-    - cron: '0 3 * * 1'  # Weekly Monday 3am
+    - cron: '0 3 * * 0'  # Weekly Sunday 3am
   workflow_dispatch:
+
+concurrency:
+  group: cache-build
+  cancel-in-progress: false
 
 jobs:
   build-cache:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/quantecon/quantecon:latest
+    
+    permissions:
+      contents: read
+      issues: write
+      packages: read
+    
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
       
-      # Build HTML (full execution, no cache restore)
-      - name: Build HTML
-        id: build
-        uses: quantecon/actions/build-lectures@v0
+      - name: Build and Cache
+        uses: quantecon/actions/build-jupyter-cache@v0
         with:
+          builders: 'html'
           source-dir: 'lectures'
-          builder: 'html'
-          upload-failure-reports: true
-      
-      # Save build cache for PR builds
-      - name: Save Build Cache
-        uses: actions/cache/save@v4
-        with:
-          path: _build
-          key: build-${{ hashFiles('environment.yml') }}-${{ github.sha }}
-      
-      # Upload as artifact for visibility and cross-workflow access
-      - name: Upload Build Cache Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-cache
-          path: _build
-          retention-days: 90
+          create-issue-on-failure: true
