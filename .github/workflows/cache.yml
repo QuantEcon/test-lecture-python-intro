@@ -1,9 +1,5 @@
 name: Build Cache
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'environment.yml'
   schedule:
     - cron: '0 3 * * 0'  # Weekly Sunday 3am
   workflow_dispatch:
