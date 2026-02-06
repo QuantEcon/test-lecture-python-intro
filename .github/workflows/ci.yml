@@ -26,12 +26,28 @@ jobs:
           source-dir: 'lectures'
           save-cache: 'true'
       
+      - name: Build PDF
+        uses: quantecon/actions/build-lectures@v0.5.0
+        with:
+          source-dir: 'lectures'
+          builder: 'pdflatex'
+          upload-failure-reports: true
+      
+      - name: Build Notebooks
+        uses: quantecon/actions/build-lectures@v0.5.0
+        with:
+          source-dir: 'lectures'
+          builder: 'jupyter'
+          upload-failure-reports: true
+      
       - name: Build HTML
         id: build
         uses: quantecon/actions/build-lectures@v0
         with:
           source-dir: 'lectures'
           builder: 'html'
+          html-copy-pdf: true
+          html-copy-notebooks: true
           upload-failure-reports: true
       
       - name: Deploy to Netlify
