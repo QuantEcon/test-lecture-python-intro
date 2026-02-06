@@ -11,7 +11,7 @@ kernelspec:
 
 # (TEST) A First Course in Quantitative Economics with Python
 
-This lecture series provides an introduction to quantitative economics using Python. 
+This lecture series provides an introduction to quantitative economics using Python.
 
 ```{tableofcontents}
 ```
