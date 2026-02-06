@@ -24,6 +24,7 @@ jobs:
         with:
           cache-type: 'build'
           source-dir: 'lectures'
+          save-cache: 'true'
       
       - name: Build HTML
         id: build
